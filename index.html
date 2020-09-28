@@ -1,0 +1,383 @@
+<head>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+  <section>
+    <h1>Project 2 -- Fun with Filters and Frequencies</h1>
+    <p>By Myles Domingo</p>
+    <h2>Overview</h2>
+    <p>
+      In this project, we create various constructions using 2D convolutions and
+      filtering.
+    </p>
+
+    <h2>1.1 Finite Difference Operators</h2>
+    <p>
+      To calculate the gradient magnitude of our cameraman image, we take the
+      partial derivatives in x and y. We convert our image to grayscale and
+      convolve it with dx = [1, -1] and dy = [ [1], [-1] ]. This gives us two
+      images that showcases horizontal and vertical edges in our image.
+    </p>
+    <p>
+      To render the gradient magnitude image, we take the euclidian distance of
+      our partial derivatives, such that gradient = sqrt((dx / df)^2 +
+      (dy/df)^2). We binarize the output gradient and set a threshold = 0.20 to
+      reduce noise while capturing most of the edges on the image.
+    </p>
+    <div class="image-row">
+      <div class="image">
+        <img class="single" src="inputs/cameraman.png" />
+        <p>Original Image</p>
+      </div>
+    </div>
+    <div class="image-row">
+      <div class="image">
+        <img src="results/dx.png" />
+        <p>Partial derivative with resepect to x</p>
+      </div>
+      <div class="image">
+        <img src="results/dy.png" />
+        <p>Partial derivative with resepect to y</p>
+      </div>
+    </div>
+    <div class="image-row">
+      <div class="image">
+        <img src="results/gradient_mag.png" />
+        <p>Gradient Magnitude</p>
+      </div>
+      <div class="image">
+        <img src="results/gradient_mag_bin.png" />
+        <p>Binarized Gradient Magnitude, threshold = 0.20</p>
+      </div>
+    </div>
+    <hr />
+
+    <h2>1.2 Derivative of Gaussian Operator</h2>
+    <p>
+      Our initial implentation of our gradient magnitude image remains noisy. To
+      reduce noise, we convolve our original camerman image with a Gaussian
+      Filter G, with kernel size = 10 and sigma = 5. When we perform the same
+      operations to get our gradient magnitude image, we can see the difference
+      in that there is a lot less noise and smooth, fatter edges. We reduce our
+      cutoff threshold when we binarize the image to capture a greater amount of
+      edges.
+    </p>
+    <p>
+      We can also generate our gradient magnitude image by taking a derivative
+      of our Gaussian Filter G and applying it to our image, as they are both
+      linear functions.
+    </p>
+
+    <div class="image-row">
+      <div class="image">
+        <img src="inputs/cameraman.png" />
+        <p>Original Image</p>
+      </div>
+      <div class="image">
+        <img src="results/cameraman_blur.png" />
+        <p>Gaussian Filter applied</p>
+      </div>
+    </div>
+    <div class="image-row">
+      <div class="image">
+        <img src="results/cameraman_blur_bin.png" />
+        <p>Gradient Magnitude with Derivatives of Gaussian</p>
+      </div>
+      <div class="image">
+        <img src="results/cameraman_blur_bin.png" />
+        <p>Binarized Gradient Magnitude, threshold = 0.04</p>
+      </div>
+    </div>
+    <hr />
+
+    <h2>1.3 Image Straightening</h2>
+    <p>
+      We can determine if an image is straight if it has a significant amount of
+      vertical or horizontal edges (in most cases). To create an auto
+      straightener, we set an angle window [-10, 10] degrees and find the
+      optimal angle rotation that yields the largest number of -180, 90, 0, 90,
+      180 edges. These edges can be found by calculating atan(dx/df, dy/df).
+    </p>
+    <p>
+      To prevent generating new edges when rotating, we center crop 15% of the
+      image and count edges within the image. Most input images have worked well
+      within the angle window provided; the only cases where this would not work
+      is with purposefully slanted objects or necessary rotations outside of the
+      angle window.
+    </p>
+    <p>
+      <b>Note:</b> We see that this is the optimal angle rotation not only
+      visually from the images, but also in our histograms. We see that there
+      are a significant increase in number of edges at -180, 90, 0, 90 degrees
+      after rotation. <b>When assessing, be mindful of the y-scale.</b>
+    </p>
+
+    <div class="image-row">
+      <div class="image">
+        <img src="inputs/facade.jpg" />
+        <p>Facade, Original</p>
+      </div>
+
+      <div class="image">
+        <img src="results/facade.png" />
+        <p>Facade, Rotated -3 degrees</p>
+      </div>
+    </div>
+    <div class="image-row">
+      <div class="image">
+        <img src="results/facade0.png" />
+      </div>
+      <div class="image">
+        <img src="results/facade3.png" />
+      </div>
+    </div>
+
+    <div class="image-row">
+      <div class="image">
+        <img src="inputs/ms.jpg" />
+        <p>Car, Original</p>
+      </div>
+      <div class="image">
+        <img src="results/ms.png" />
+        <p>Car, Rotated -8 degrees</p>
+      </div>
+    </div>
+    <div class="image-row">
+      <div class="image">
+        <img src="results/ms0.png" />
+      </div>
+      <div class="image">
+        <img src="results/ms8.png" />
+      </div>
+    </div>
+
+    <div class="image-row">
+      <div class="image">
+        <img src="inputs/car.jpg" />
+        <p>Car, Original</p>
+      </div>
+      <div class="image">
+        <img src="results/car.png" />
+        <p>Car, Rotated 9 degrees</p>
+      </div>
+    </div>
+    <div class="image-row">
+      <div class="image">
+        <img src="results/car0.png" />
+      </div>
+      <div class="image">
+        <img src="results/car9.png" />
+      </div>
+    </div>
+
+    <div class="image-row">
+      <div class="image">
+        <img src="inputs/birdhouse.jpeg" />
+        <p>Birdhouse, Original</p>
+      </div>
+      <div class="image">
+        <img src="results/birdhouse.png" />
+        <p>Birdhouse, Rotated -7 degrees</p>
+      </div>
+    </div>
+    <div class="image-row">
+      <div class="image">
+        <img src="results/birdhouse0.png" />
+      </div>
+      <div class="image">
+        <img src="results/birdhouse7.png" />
+      </div>
+    </div>
+    <div class="image-row">
+      <div class="image">
+        <img src="inputs/city.jpg" />
+        <p>City, Original</p>
+      </div>
+      <div class="image">
+        <img src="results/city.png" />
+        <p>City, Rotated -2 degrees</p>
+      </div>
+    </div>
+    <div class="image-row">
+      <div class="image">
+        <img src="results/city0.png" />
+      </div>
+      <div class="image">
+        <img src="results/city2.png" />
+      </div>
+    </div>
+
+    <p>
+      <b>Note:</b> We see that this final image is a <b>failure case.</b> It is
+      already straight, however, the building has diagonal lines which create
+      false straight edges under our scoring system.
+    </p>
+
+    <hr />
+
+    <h2>2.1 Image Sharpening</h2>
+    <p>
+      We can sharpen image by creating a low pass filter, subtracting it from
+      the original image, and collecting the high frequencies of the image. We
+      can add these high frequencies to the original image using the unsharp
+      mask filter.
+    </p>
+    <div class="image-row">
+      <div class="image">
+        <img src="inputs/taj.jpg" />
+        <p>Taj, Original</p>
+      </div>
+      <div class="image">
+        <img src="results/taj_sharp.png" />
+        <p>Taj, with a sharpen filter</p>
+      </div>
+    </div>
+
+    <div class="image-row">
+      <div class="image">
+        <img src="inputs/flower.jpg" />
+        <p>Flower, Original</p>
+      </div>
+      <div class="image">
+        <img src="results/flowers_blur.png" />
+        <p>Flower, applied Gaussian blur</p>
+      </div>
+      <div class="image">
+        <img src="results/flowers_sharp.png" />
+        <p>Flower, re-applied sharpen filter</p>
+      </div>
+    </div>
+
+    <hr />
+
+    <h2>2.2 Hybrid Images</h2>
+
+    <p>
+      We can create hybrid images that change in interpretation based on viewing
+      distances by combining the low pass filter of an image and a high pass
+      filter of another. We align the images by dominant features, such as nose
+      bridges, eyes, ears, and scale such that these points align with each
+      other.
+    </p>
+    <p>
+      We also experiement with cutoff ranges by modifying sigma of our Gaussian
+      filter to increase/decrease visual dominance of our low and high filters.
+    </p>
+    <p>
+      <b> Bells and Whistles </b> I introduced colors into the hybrid images by
+      separating each color channel of the image and performing the convolutions
+      for the low-pass and high-pass filters. I personally think it looks better
+      for both when the color paletters are somewhat the same — otherwise, the
+      low frequency component as it provides a sturdy base for the image.
+    </p>
+    <div class="image-row">
+      <div class="image">
+        <img src="inputs/DerekPicture.jpg" />
+        <p>Low Pass Filter, sigma = 10</p>
+      </div>
+      <div class="image">
+        <img src="inputs/nutmeg.jpg" />
+        <p>High Pass Filter, sigma = 5</p>
+      </div>
+      <div class="image">
+        <img src="results/derek.png" />
+        <p></p>
+      </div>
+    </div>
+
+    <div class="image-row">
+      <div class="image">
+        <img src="inputs/woman.jpg" />
+        <p>Low Pass Filter, sigma = 5</p>
+      </div>
+      <div class="image">
+        <img src="inputs/woman2.jpg" />
+        <p>High Pass Filter, sigma = 10</p>
+      </div>
+      <div class="image">
+        <img src="results/woman.png" />
+        <p></p>
+      </div>
+    </div>
+
+    <p>
+      <b>Fourier Analysis:</b> Here are frequency analysises in the fourier
+      domain of these images. We can see the additive relationship between the
+      low pass and high pass frequency domains.
+    </p>
+
+    <div class="image-row">
+      <div class="image">
+        <img src="results/low_pass.png" />
+        <p>Low Pass Filter</p>
+      </div>
+      <div class="image">
+        <img src="results/high_pass.png" />
+        <p>High Pass Filter</p>
+      </div>
+      <div class="image">
+        <img src="results/hybrid.png" />
+        <p>Hybrid Image</p>
+      </div>
+    </div>
+    <div class="image-row">
+      <div class="image">
+        <img src="inputs/eric.jpg" />
+        <p>Low Pass Filter, sigma = 10</p>
+      </div>
+      <div class="image">
+        <img src="inputs/seal.jpg" />
+        <p>High Pass Filter, sigma = 8</p>
+      </div>
+      <div class="image">
+        <img src="results/seal.png" />
+        <p></p>
+      </div>
+    </div>
+
+    <p>
+      <b>Note:</b> I consider this image is a <b>failure case.</b> The shapes of
+      the face and animals are too compositonally different, and the black of
+      eyes of the seal are dominated by the portrait's eyes regardless of sigma
+      and viewing distance.
+    </p>
+
+    <hr />
+    <h2>2.3 Laplacian and Gaussian Stacks</h2>
+    <p>
+      We create a Gaussian stack by applying a Gaussian filter across the same
+      image multiple times. This removes the need for downsampling an image, and
+      can preserve dimensions.
+    </p>
+    <div class="image-row">
+      <div class="image">
+        <img src="results/gaussian_stack.png" />
+        <p>Gaussian Stack, N = 5 Lincoln</p>
+      </div>
+    </div>
+    <p>
+      <b>Note:</b> Failed to create a laplacian stack because I believe my
+      implenetation for gaussian stacks are too slow, and takes too much time to
+      iterate and calculate the laplacian for each level as a function of the
+      gaussian stack. Normally, how this would work is that I would take the
+      difference of current and next level of the gaussian stack.
+    </p>
+    <div class="image-row">
+      <div class="image">
+        <img src="results/laplacian_stack.png" />
+        <p>Attempt at Creating Laplacian Stack, N = 5</p>
+      </div>
+    </div>
+    <hr />
+    <h2>Challenges and Conclusion</h2>
+    <p>
+      Even if unfinished, I really enjoyed implementing this product. The main
+      things I’ve learned are the vast numerous use cases of a Gaussian filter,
+      which can be used with a simple convolution. The main challenge was
+      understanding the underlying python libraries, including how to plot
+      images, separate color channels, and handle convolutions of arrays of
+      different dimensions.
+    </p>
+  </section>
+</body>
